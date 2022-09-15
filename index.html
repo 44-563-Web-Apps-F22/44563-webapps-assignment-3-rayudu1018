@@ -63,5 +63,48 @@
             </tr>
         </table>
         
+        <hr>
+        <h3>Block qote section</h3>
+        <h5>Section for code display</h5>
+        <blockquote cite="https://stackoverflow.com/questions/5226791/custom-error-pages-on-asp-net-mvc3">Custom error pages on asp.net MVC3</blockquote>
+
+        <a href="https://stackoverflow.com/questions/5226791/custom-error-pages-on-asp-net-mvc3">Click for quick link for source code section</a>
+
+        <pre>
+            protected void Application_Error() {
+                //while my project is running in debug mode
+                if (HttpContext.Current.IsDebuggingEnabled && WebConfigurationManager.AppSettings["EnableCustomErrorPage"].Equals("false"))
+                {
+                    Log.Logger.Error("unhandled exception: ", Server.GetLastError());
+                }
+                else
+                {
+                    try
+                    {
+                        var exception = Server.GetLastError();
+                
+                        Log.Logger.Error("unhandled exception: ", exception);
+                
+                        Response.Clear();
+                        Server.ClearError();
+                        var routeData = new RouteData();
+                        routeData.Values["controller"] = "Errors";
+                        routeData.Values["action"] = "General";
+                        routeData.Values["exception"] = exception;
+                
+                        IController errorsController = new ErrorsController();
+                        var rc = new RequestContext(new HttpContextWrapper(Context), routeData);
+                        errorsController.Execute(rc);
+                    }
+                    catch (Exception e)
+                    {
+                        //if Error controller failed for same reason, we will display static HTML error page
+                        Log.Logger.Fatal("failed to display error page, fallback to HTML error: ", e);
+                        Response.TransmitFile("~/error.html");
+                    }
+                }
+                }
+        </pre>
+        
     </body>
 </html>
